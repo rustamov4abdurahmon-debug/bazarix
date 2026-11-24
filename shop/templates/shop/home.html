@@ -1,0 +1,355 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazarix — Свежие продукты</title>
+    <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+
+    <style>
+        .product-image {
+            position: relative;
+        }
+
+        .favorite-button {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 42px;
+            height: 42px;
+            border: none;
+            border-radius: 50%;
+            background: white;
+            color: #777;
+            font-size: 23px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+            transition: 0.2s;
+            z-index: 2;
+        }
+
+        .favorite-button:hover {
+            transform: scale(1.12);
+            color: #e74c3c;
+        }
+
+        .favorite-button.active {
+            color: #e74c3c;
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #e53935;
+            color: white;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            z-index: 2;
+        }
+
+        .product-prices {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .old-price {
+            color: #999;
+            font-size: 13px;
+            text-decoration: line-through;
+            font-weight: normal;
+        }
+
+        .new-price {
+            color: #e53935;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .regular-price {
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .product-details-button {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 10px 16px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            text-decoration: none;
+            background: #f0f7ee;
+            color: #287a38;
+            border: 1px solid #d8ead5;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .product-details-button:hover {
+            background: #287a38;
+            color: white;
+        }
+    </style>
+</head>
+<body class="store-page">
+
+<header class="store-header">
+    <a href="{% url 'home' %}" class="store-logo">
+        <span>✳</span> bazarix<span class="logo-dot">.</span>
+    </a>
+
+    <div class="store-search">
+        <span>⌕</span>
+        <input type="search" id="productSearch"
+               placeholder="Найти яблоки, бананы...">
+        <button type="button" id="clearSearch" aria-label="Очистить поиск"
+                style="display:none; border:0; background:none; cursor:pointer;">
+            ✕
+        </button>
+    </div>
+
+    <div class="store-actions">
+        <span class="welcome-user">Привет, {{ request.user.username }}!</span>
+        <a href="{% url 'profile' %}" class="cart-button">👤 Профиль</a>
+        <a href="{% url 'favorites' %}" class="cart-button">❤️ Избранное</a>
+        <a href="{% url 'my_orders' %}" class="cart-button">📦 Мои заказы</a>
+        <a href="{% url 'cart' %}" class="cart-button">♧ Корзина</a>
+    </div>
+</header>
+
+<main class="store-main">
+
+    <section class="store-hero">
+        <div class="hero-copy">
+            <span class="store-eyebrow">BAZARIX · FRESH MARKET</span>
+            <h1>Еда, которая<br>делает жизнь <em>вкуснее.</em></h1>
+            <p>Свежие продукты, отборное качество и всё необходимое для вашего стола — в одном месте.</p>
+            <a href="#products" class="hero-button">Выбрать продукты <span>↗</span></a>
+            <div class="hero-note">СВЕЖЕСТЬ КАЖДЫЙ ДЕНЬ · КАЧЕСТВО В КАЖДОЙ ДЕТАЛИ</div>
+        </div>
+
+        <div class="hero-photo">
+            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&auto=format&fit=crop"
+                 alt="Свежие овощи и фрукты">
+            <div class="hero-photo-label">GOOD FOOD. GOOD MOOD.</div>
+        </div>
+    </section>
+
+    <section class="category-section">
+        <div class="section-heading">
+            <div>
+                <span class="store-eyebrow">НАШ АССОРТИМЕНТ</span>
+                <h2>Что ищем сегодня?</h2>
+            </div>
+            <span class="section-small">ВЫБИРАЙТЕ С ЛЮБОВЬЮ</span>
+        </div>
+
+        <div class="category-list">
+            <button class="category-chip active" data-category="all">
+                Все продукты
+            </button>
+
+            {% for category in categories %}
+                <button class="category-chip" data-category="{{ category.id }}">
+                    {{ category.name }}
+                </button>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="products-section" id="products">
+        <div class="section-heading">
+            <div>
+                <span class="store-eyebrow">FRESH SELECTION</span>
+                <h2>Популярные продукты<span>.</span></h2>
+            </div>
+            <span class="section-small">ОТБОРНОЕ КАЧЕСТВО</span>
+        </div>
+
+        <p id="searchCount" style="margin-bottom:20px;"></p>
+
+        <div class="product-grid">
+            {% for product in products %}
+                <article class="product-card"
+                         data-category="{{ product.category_id|default:'none' }}"
+                         data-name="{{ product.name|lower }}"
+                         data-category-name="{{ product.category.name|default:'продукты'|lower }}">
+
+                    <div class="product-image">
+
+                        {% if product.discount_percent > 0 %}
+                            <span class="discount-badge">
+                                −{{ product.discount_percent }}%
+                            </span>
+                        {% endif %}
+
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <div style="padding:50px 10px; text-align:center;">
+                                Фото скоро появится
+                            </div>
+                        {% endif %}
+
+                        <form method="POST"
+                              action="{% url 'toggle_favorite' product.id %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="home">
+
+                            <button type="submit"
+                                    class="favorite-button {% if product.id in favorite_ids %}active{% endif %}"
+                                    aria-label="Добавить в избранное">
+                                {% if product.id in favorite_ids %}
+                                    ♥
+                                {% else %}
+                                    ♡
+                                {% endif %}
+                            </button>
+                        </form>
+
+                    </div>
+
+                    <div class="product-info">
+                        <span class="product-category">
+                            {{ product.category.name|default:"ПРОДУКТЫ" }}
+                        </span>
+
+                        <h3>{{ product.name }}</h3>
+
+                        <div class="product-bottom">
+
+                            <div class="product-prices">
+                                {% if product.discount_percent > 0 %}
+                                    <span class="old-price">
+                                        {{ product.price }} сом
+                                    </span>
+                                    <strong class="new-price">
+                                        {{ product.discounted_price }} сом
+                                    </strong>
+                                {% else %}
+                                    <strong class="regular-price">
+                                        {{ product.price }} сом
+                                    </strong>
+                                {% endif %}
+                            </div>
+
+                            {% if product.stock > 0 %}
+                                <form method="POST"
+                                      action="{% url 'add_to_cart' product.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="add-button">+</button>
+                                </form>
+                            {% else %}
+                                <span>Нет в наличии</span>
+                            {% endif %}
+                        </div>
+
+                        <a href="{% url 'product_detail' product.id %}"
+                           class="product-details-button">
+                            Подробнее →
+                        </a>
+                    </div>
+                </article>
+            {% empty %}
+                <p>Пока товаров нет. Добавьте их через админ-панель.</p>
+            {% endfor %}
+        </div>
+
+        <p class="no-products" id="noProducts" hidden>
+            😔 По вашему запросу ничего не найдено.
+        </p>
+    </section>
+
+    <section class="store-promise">
+        <span>✳</span>
+        <div>
+            <h2>Хорошая еда начинается с хорошего выбора.</h2>
+            <p>Bazarix — свежесть, качество и забота о каждом покупателе.</p>
+        </div>
+    </section>
+
+</main>
+
+<footer class="store-footer">
+    <a href="{% url 'home' %}" class="store-logo">
+        ✳ bazarix<span class="logo-dot">.</span>
+    </a>
+    <span>© 2026 BAZARIX MARKET. ВСЕ ПРАВА ЗАЩИЩЕНЫ.</span>
+</footer>
+
+<script>
+const searchInput = document.getElementById('productSearch');
+const clearButton = document.getElementById('clearSearch');
+const categoryButtons = document.querySelectorAll('.category-chip');
+const productCards = document.querySelectorAll('.product-card');
+const noProducts = document.getElementById('noProducts');
+const searchCount = document.getElementById('searchCount');
+
+let selectedCategory = 'all';
+
+function filterProducts() {
+    const search = searchInput.value.toLowerCase().trim();
+    let visibleCount = 0;
+
+    productCards.forEach(function(card) {
+        const name = card.dataset.name || '';
+        const categoryName = card.dataset.categoryName || '';
+        const category = card.dataset.category;
+
+        const matchesSearch =
+            name.includes(search) || categoryName.includes(search);
+
+        const matchesCategory =
+            selectedCategory === 'all' ||
+            category === selectedCategory;
+
+        const visible = matchesSearch && matchesCategory;
+
+        card.hidden = !visible;
+
+        if (visible) {
+            visibleCount++;
+        }
+    });
+
+    noProducts.hidden = visibleCount !== 0;
+
+    searchCount.textContent = search
+        ? 'Найдено товаров: ' + visibleCount
+        : 'Всего товаров: ' + visibleCount;
+
+    clearButton.style.display = search ? 'inline-block' : 'none';
+}
+
+searchInput.addEventListener('input', filterProducts);
+
+clearButton.addEventListener('click', function() {
+    searchInput.value = '';
+    filterProducts();
+    searchInput.focus();
+});
+
+categoryButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+        categoryButtons.forEach(function(item) {
+            item.classList.remove('active');
+        });
+
+        button.classList.add('active');
+        selectedCategory = button.dataset.category;
+        filterProducts();
+    });
+});
+
+filterProducts();
+</script>
+
+</body>
+</html>

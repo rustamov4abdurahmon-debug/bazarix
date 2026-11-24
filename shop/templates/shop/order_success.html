@@ -1,0 +1,225 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazarix — Заказ оформлен</title>
+    <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f7f8f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .success-container {
+            width: min(90%, 650px);
+            margin: 50px auto;
+            padding: 40px 30px;
+            text-align: center;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.06);
+            box-sizing: border-box;
+        }
+
+        .success-icon {
+            width: 85px;
+            height: 85px;
+            margin: 0 auto 25px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #e3f5e8;
+            color: #287a45;
+            font-size: 45px;
+        }
+
+        .success-container h1 {
+            color: #287a45;
+            margin-bottom: 15px;
+        }
+
+        .success-container p {
+            color: #666;
+            line-height: 1.7;
+        }
+
+        .order-number {
+            margin: 25px 0;
+            padding: 15px;
+            background: #f3f7f2;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .order-details {
+            margin-top: 25px;
+            padding: 20px;
+            background: #fafbf9;
+            border-radius: 12px;
+            text-align: left;
+        }
+
+        .order-details h2 {
+            margin-top: 0;
+            font-size: 20px;
+            color: #222;
+        }
+
+        .order-product {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-name {
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 8px;
+        }
+
+        .product-info {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .old-price {
+            color: #999;
+            text-decoration: line-through;
+            margin-right: 7px;
+        }
+
+        .new-price {
+            color: #287a45;
+            font-weight: bold;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+            font-size: 21px;
+            font-weight: bold;
+            color: #287a45;
+        }
+
+        .delivery-info {
+            margin-top: 25px;
+            padding: 18px;
+            background: #f3f7f2;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .delivery-info p {
+            margin: 8px 0;
+            color: #444;
+        }
+
+        .success-button {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 15px 28px;
+            background: #287a45;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: .2s;
+        }
+
+        .success-button:hover {
+            background: #1e6036;
+        }
+
+        @media (max-width: 480px) {
+            .success-container {
+                padding: 30px 18px;
+                margin: 25px auto;
+            }
+
+            .order-total {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="store-header">
+    <a href="{% url 'home' %}" class="store-logo">
+        <span>✳</span> bazarix<span class="logo-dot">.</span>
+    </a>
+</header>
+
+<main class="success-container">
+
+    <div class="success-icon">✓</div>
+
+    <h1>Заказ успешно оформлен!</h1>
+
+    <p>
+        Спасибо за покупку в Bazarix!
+        Ваш заказ принят. Скоро с вами свяжется наш менеджер.
+    </p>
+
+    <div class="order-number">
+        Номер вашего заказа: №{{ order.id }}
+    </div>
+
+    <div class="order-details">
+        <h2>Ваш заказ</h2>
+
+        {% for item in order.orderitem_set.all %}
+            <div class="order-product">
+
+                <div class="product-name">
+                    {{ item.product_name }}
+                </div>
+
+                <div class="product-info">
+                    Количество: {{ item.quantity }} шт.<br>
+                    Цена за штуку: {{ item.price }} сом<br>
+                    Сумма:
+                    <strong>
+                        {{ item.price|floatformat:2 }} × {{ item.quantity }}
+                    </strong>
+                    сом
+                </div>
+
+            </div>
+        {% endfor %}
+
+        <div class="order-total">
+            <span>Итого:</span>
+            <span>{{ order.total_price }} сом</span>
+        </div>
+    </div>
+
+    <div class="delivery-info">
+        <p><strong>Получатель:</strong> {{ order.full_name }}</p>
+        <p><strong>Телефон:</strong> {{ order.phone }}</p>
+        <p><strong>Адрес доставки:</strong> {{ order.address }}</p>
+
+        {% if order.comment %}
+            <p><strong>Комментарий:</strong> {{ order.comment }}</p>
+        {% endif %}
+    </div>
+
+    <a href="{% url 'home' %}" class="success-button">
+        Вернуться в магазин →
+    </a>
+
+</main>
+
+</body>
+</html>

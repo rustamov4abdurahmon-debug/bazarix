@@ -1,0 +1,142 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazarix — Вход</title>
+    <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+</head>
+<body>
+
+<div class="page">
+
+    <header class="header">
+        <a href="/" class="logo">
+            <span class="logo-icon">✳</span>
+            bazarix<span class="logo-dot">.</span>
+        </a>
+
+        <div class="header-right">
+            <span>Нет аккаунта?</span>
+            <a href="{% url 'register' %}" class="header-login">Регистрация</a>
+        </div>
+    </header>
+
+    <main class="main">
+
+        <section class="visual">
+            <div class="visual-overlay"></div>
+
+            <div class="visual-content">
+                <span class="eyebrow">THE FRESH MARKET</span>
+
+                <h1>
+                    Снова<br>
+                    добро<br>
+                    <em>пожаловать.</em>
+                </h1>
+
+                <p>
+                    Ваш любимый вкус и свежие продукты
+                    уже ждут вас в Bazarix.
+                </p>
+
+                <div class="visual-bottom">
+                    <span>01 — FRESH FOOD</span>
+                    <span>02 — QUALITY</span>
+                    <span>03 — DELIVERY</span>
+                </div>
+            </div>
+
+            <div class="image-caption">
+                <span>GOOD FOOD. GOOD MOOD.</span>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <div class="form-wrapper">
+
+                <div class="mobile-logo">✳ bazarix.</div>
+
+                <div class="form-heading">
+                    <span class="form-tag">РАДЫ ВАС ВИДЕТЬ</span>
+                    <h2>Войти в<br>аккаунт<span>.</span></h2>
+                    <p>Продолжайте открывать мир свежих продуктов.</p>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="message">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="POST" class="register-form">
+                    {% csrf_token %}
+
+                    <div class="input-group">
+                        <label>EMAIL ИЛИ ИМЯ ПОЛЬЗОВАТЕЛЯ</label>
+                        <input type="text"
+                               name="identifier"
+                               placeholder="example@gmail.com"
+                               autocomplete="username"
+                               required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>ПАРОЛЬ</label>
+                        <div class="password-box">
+                            <input type="password"
+                                   name="password"
+                                   id="login-password"
+                                   placeholder="Введите пароль"
+                                   autocomplete="current-password"
+                                   required>
+
+                            <button type="button"
+                                    class="toggle-password"
+                                    onclick="togglePassword('login-password', this)">
+                                👁
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-button">
+                        Войти
+                        <span>↗</span>
+                    </button>
+
+                </form>
+
+                <div class="form-footer">
+                    Ещё нет аккаунта?
+                    <a href="{% url 'register' %}">Создать аккаунт</a>
+                </div>
+
+                <div class="copyright">
+                    © 2026 BAZARIX MARKET. ВСЕ ПРАВА ЗАЩИЩЕНЫ.
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script>
+function togglePassword(id, button) {
+    const input = document.getElementById(id);
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = '🙈';
+    } else {
+        input.type = 'password';
+        button.textContent = '👁';
+    }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,408 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина — Bazarix</title>
+    <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+
+    <style>
+        .cart-page {
+            min-height: 100vh;
+            background: #f8f7f1;
+            padding: 50px 20px;
+        }
+
+        .cart-container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .cart-title {
+            color: #174d38;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .cart-subtitle {
+            color: #777;
+            margin-bottom: 35px;
+        }
+
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .cart-items {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item img {
+            width: 105px;
+            height: 105px;
+            object-fit: cover;
+            border-radius: 14px;
+            background: #f1eee5;
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-info h3 {
+            color: #174d38;
+            margin: 0 0 8px;
+            font-size: 18px;
+        }
+
+        .cart-item-info p {
+            color: #888;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .old-price {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 14px;
+        }
+
+        .new-price {
+            color: #174d38;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .discount-badge {
+            background: #e9f5e9;
+            color: #218343;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .cart-item-price {
+            color: #174d38;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .quantity-controls button {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #eaf1eb;
+            color: #174d38;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .quantity-controls span {
+            font-weight: 700;
+            color: #174d38;
+        }
+
+        .remove-button {
+            background: none;
+            border: none;
+            color: #c45b51;
+            cursor: pointer;
+            margin-top: 12px;
+            padding: 0;
+        }
+
+        .cart-summary {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .cart-summary h2 {
+            color: #174d38;
+            margin-top: 0;
+        }
+
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 18px 0;
+            color: #777;
+        }
+
+        .summary-total {
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            color: #174d38;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .checkout-button {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 16px;
+            background: #174d38;
+            color: white;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 12px;
+            margin-top: 25px;
+            font-weight: 600;
+        }
+
+        .continue-shopping {
+            display: block;
+            color: #174d38;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 18px;
+        }
+
+        .empty-cart {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .empty-cart h2 {
+            color: #174d38;
+        }
+
+        .cart-message {
+            color: #b54b3f;
+            margin-bottom: 15px;
+        }
+
+        @media(max-width: 750px) {
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-title {
+                font-size: 28px;
+            }
+
+            .cart-item {
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .cart-item img {
+                width: 85px;
+                height: 85px;
+            }
+
+            .cart-summary {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="store-header">
+    <a href="{% url 'home' %}" class="store-logo">
+        <span>✳</span> bazarix<span class="logo-dot">.</span>
+    </a>
+
+    <div class="store-actions">
+        <span class="welcome-user">
+            Привет, {{ request.user.username }}!
+        </span>
+        <a href="{% url 'profile' %}" class="logout-link">
+            Мой профиль
+        </a>
+    </div>
+</header>
+
+<main class="cart-page">
+    <div class="cart-container">
+
+        <h1 class="cart-title">Моя корзина 🛒</h1>
+        <p class="cart-subtitle">
+            Всё самое свежее уже ждёт тебя!
+        </p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <p class="cart-message">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+
+        {% if items %}
+
+        <div class="cart-layout">
+
+            <section class="cart-items">
+
+                {% for item in items %}
+
+                <article class="cart-item">
+
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}"
+                             alt="{{ item.product.name }}">
+                    {% else %}
+                        <img src="https://placehold.co/105x105/e9eee9/174d38?text=Bazarix"
+                             alt="Фото товара">
+                    {% endif %}
+
+                    <div class="cart-item-info">
+
+                        <h3>{{ item.product.name }}</h3>
+
+                        <div class="price-row">
+                            {% if item.product.is_discounted %}
+                                <span class="old-price">
+                                    {{ item.product.price }} сом
+                                </span>
+
+                                <span class="new-price">
+                                    {{ item.unit_price }} сом
+                                </span>
+
+                                <span class="discount-badge">
+                                    -{{ item.product.discount_percent }}%
+                                </span>
+                            {% else %}
+                                <span class="new-price">
+                                    {{ item.unit_price }} сом
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <div class="cart-item-price">
+                            Сумма: {{ item.subtotal }} сом
+                        </div>
+
+                        <div class="quantity-controls">
+
+                            <form method="POST"
+                                  action="{% url 'update_cart' item.product.id %}">
+                                {% csrf_token %}
+                                <input type="hidden"
+                                       name="quantity"
+                                       value="{{ item.quantity|add:'-1' }}">
+                                <button type="submit">−</button>
+                            </form>
+
+                            <span>{{ item.quantity }}</span>
+
+                            <form method="POST"
+                                  action="{% url 'update_cart' item.product.id %}">
+                                {% csrf_token %}
+                                <input type="hidden"
+                                       name="quantity"
+                                       value="{{ item.quantity|add:'1' }}">
+                                <button type="submit">+</button>
+                            </form>
+
+                        </div>
+
+                        <form method="POST"
+                              action="{% url 'remove_from_cart' item.product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="remove-button">
+                                Удалить товар
+                            </button>
+                        </form>
+
+                    </div>
+
+                </article>
+
+                {% endfor %}
+
+            </section>
+
+            <aside class="cart-summary">
+
+                <h2>Ваш заказ</h2>
+
+                <div class="summary-line">
+                    <span>Позиций товаров</span>
+                    <strong>{{ items|length }}</strong>
+                </div>
+
+                <div class="summary-line summary-total">
+                    <span>Итого</span>
+                    <span>{{ total }} сом</span>
+                </div>
+
+                <a href="{% url 'checkout' %}"
+                   class="checkout-button">
+                    Оформить заказ →
+                </a>
+
+                <a href="{% url 'home' %}"
+                   class="continue-shopping">
+                    ← Продолжить покупки
+                </a>
+
+            </aside>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-cart">
+            <div style="font-size:65px;">🛒</div>
+            <h2>Ваша корзина пока пуста</h2>
+            <p>Добавьте свежие продукты из нашего магазина.</p>
+
+            <a href="{% url 'home' %}"
+               class="checkout-button"
+               style="max-width:250px; margin:25px auto;">
+                Перейти в магазин
+            </a>
+        </div>
+
+        {% endif %}
+
+    </div>
+</main>
+
+</body>
+</html>

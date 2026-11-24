@@ -1,0 +1,397 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazarix — Мои заказы</title>
+    <link rel="stylesheet" href="{% static 'shop/css/style.css' %}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f7f8f5;
+            font-family: Arial, sans-serif;
+            color: #252525;
+        }
+
+        .orders-container {
+            width: min(94%, 1050px);
+            margin: 45px auto;
+        }
+
+        .orders-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .orders-heading h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+        }
+
+        .orders-heading p {
+            margin: 0;
+            color: #777;
+        }
+
+        .back-link {
+            color: #287a45;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 22px;
+            box-shadow: 0 5px 22px rgba(0,0,0,.04);
+            border: 1px solid #edf0eb;
+        }
+
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .order-number {
+            font-size: 19px;
+            font-weight: bold;
+        }
+
+        .order-date {
+            color: #888;
+            font-size: 14px;
+            margin-top: 7px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 9px 15px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #edf2ee;
+            color: #555;
+        }
+
+        .status-new {
+            background: #fff3d8;
+            color: #9a6800;
+        }
+
+        .status-processing {
+            background: #e8f1ff;
+            color: #2861a8;
+        }
+
+        .status-ready {
+            background: #e3f5e8;
+            color: #287a45;
+        }
+
+        .status-delivering {
+            background: #eee8ff;
+            color: #6842a8;
+        }
+
+        .status-picked-up,
+        .status-completed {
+            background: #dff5e5;
+            color: #287a45;
+        }
+
+        .status-cancelled {
+            background: #ffe7e7;
+            color: #b33b3b;
+        }
+
+        .section-title {
+            font-size: 17px;
+            margin: 23px 0 13px;
+        }
+
+        .delivery-info {
+            background: #f8faf7;
+            border: 1px solid #edf0eb;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .delivery-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .delivery-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .delivery-label {
+            color: #777;
+            min-width: 115px;
+        }
+
+        .delivery-value {
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .order-product {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 13px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .product-name {
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .product-quantity {
+            color: #888;
+            font-size: 14px;
+        }
+
+        .product-price {
+            color: #287a45;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .order-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .order-total-label {
+            color: #777;
+        }
+
+        .order-total {
+            font-size: 22px;
+            font-weight: bold;
+            color: #287a45;
+        }
+
+        .empty-orders {
+            text-align: center;
+            background: white;
+            padding: 65px 20px;
+            border-radius: 18px;
+            box-shadow: 0 5px 22px rgba(0,0,0,.04);
+        }
+
+        .empty-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        .empty-orders h2 {
+            margin-bottom: 10px;
+        }
+
+        .empty-orders p {
+            color: #888;
+            margin-bottom: 25px;
+        }
+
+        .shop-button {
+            display: inline-block;
+            padding: 13px 24px;
+            border-radius: 10px;
+            background: #287a45;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: .2s;
+        }
+
+        .shop-button:hover {
+            background: #1e6036;
+        }
+
+        @media (max-width: 600px) {
+            .orders-container {
+                margin: 25px auto;
+            }
+
+            .orders-heading h1 {
+                font-size: 25px;
+            }
+
+            .order-card {
+                padding: 18px;
+            }
+
+            .order-product {
+                align-items: flex-start;
+            }
+
+            .order-total {
+                font-size: 19px;
+            }
+
+            .delivery-row {
+                flex-direction: column;
+                gap: 3px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="store-header">
+    <a href="{% url 'home' %}" class="store-logo">
+        <span>✳</span> bazarix<span class="logo-dot">.</span>
+    </a>
+</header>
+
+<main class="orders-container">
+
+    <div class="orders-heading">
+        <div>
+            <h1>Мои заказы</h1>
+            <p>Здесь хранится история твоих покупок</p>
+        </div>
+
+        <a href="{% url 'home' %}" class="back-link">
+            ← Вернуться в магазин
+        </a>
+    </div>
+
+    {% if orders %}
+
+        {% for order in orders %}
+            <section class="order-card">
+
+                <div class="order-top">
+                    <div>
+                        <div class="order-number">
+                            Заказ №{{ order.id }}
+                        </div>
+
+                        <div class="order-date">
+                            {{ order.created_at|date:"d.m.Y, H:i" }}
+                        </div>
+                    </div>
+
+                    <span class="status
+                        {% if order.status == 'new' %}status-new
+                        {% elif order.status == 'processing' %}status-processing
+                        {% elif order.status == 'ready' %}status-ready
+                        {% elif order.status == 'delivering' %}status-delivering
+                        {% elif order.status == 'picked_up' %}status-picked-up
+                        {% elif order.status == 'completed' %}status-completed
+                        {% elif order.status == 'cancelled' %}status-cancelled
+                        {% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+
+                <h3 class="section-title">Информация о доставке</h3>
+
+                <div class="delivery-info">
+
+                    <div class="delivery-row">
+                        <span class="delivery-label">Получатель:</span>
+                        <span class="delivery-value">{{ order.full_name }}</span>
+                    </div>
+
+                    <div class="delivery-row">
+                        <span class="delivery-label">Телефон:</span>
+                        <span class="delivery-value">{{ order.phone }}</span>
+                    </div>
+
+                    <div class="delivery-row">
+                        <span class="delivery-label">Адрес:</span>
+                        <span class="delivery-value">{{ order.address|linebreaksbr }}</span>
+                    </div>
+
+                    {% if order.comment %}
+                        <div class="delivery-row">
+                            <span class="delivery-label">Комментарий:</span>
+                            <span class="delivery-value">{{ order.comment|linebreaksbr }}</span>
+                        </div>
+                    {% endif %}
+
+                </div>
+
+                <h3 class="section-title">Товары в заказе</h3>
+
+                {% for item in order.items.all %}
+                    <div class="order-product">
+                        <div>
+                            <div class="product-name">
+                                {{ item.product_name }}
+                            </div>
+
+                            <div class="product-quantity">
+                                {{ item.price|floatformat:2 }} сом × {{ item.quantity }} шт.
+                            </div>
+                        </div>
+
+                        <div class="product-price">
+                            {{ item.price|floatformat:2 }} × {{ item.quantity }} сом
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>Информация о товарах отсутствует.</p>
+                {% endfor %}
+
+                <div class="order-bottom">
+                    <span class="order-total-label">Общая сумма заказа</span>
+
+                    <span class="order-total">
+                        {{ order.total_price }} сом
+                    </span>
+                </div>
+
+            </section>
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty-orders">
+            <div class="empty-icon">🛍️</div>
+
+            <h2>У тебя пока нет заказов</h2>
+
+            <p>Самое время выбрать что-нибудь интересное!</p>
+
+            <a href="{% url 'home' %}" class="shop-button">
+                Перейти в магазин
+            </a>
+        </div>
+
+    {% endif %}
+
+</main>
+
+</body>
+</html>
