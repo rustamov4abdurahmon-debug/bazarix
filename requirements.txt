@@ -4,3 +4,5 @@ whitenoise
 dj-database-url
 psycopg[binary]
 Pillow
+django-cloudinary-storage
+cloudinary
