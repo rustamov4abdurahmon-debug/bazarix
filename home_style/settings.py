@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
-
+import logging
 import os
 from pathlib import Path
 import dj_database_url
@@ -166,3 +166,14 @@ EMAIL_BACKEND = (
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Временная диагностика Cloudinary
+
+
+logger = logging.getLogger(__name__)
+
+logger.warning(
+    "STORAGE CHECK: backend=%s, CLOUDINARY_URL_SET=%s",
+    STORAGES["default"]["BACKEND"],
+    bool(os.environ.get("CLOUDINARY_URL"))
+)
