@@ -166,3 +166,13 @@ EMAIL_BACKEND = (
 )
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+logger.warning(
+    "STORAGE CHECK: backend=%s, CLOUDINARY_URL_SET=%s",
+    STORAGES["default"]["BACKEND"],
+    bool(os.environ.get("CLOUDINARY_URL"))
+)
